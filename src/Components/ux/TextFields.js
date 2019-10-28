@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { TextField } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import PropTypes from 'prop-types';
 
 const useStyles = makeStyles(theme => ({
     margin: {
@@ -36,8 +37,7 @@ export default function TextFieldComponent(props) {
                     value={props.value}
                     onChange={handleInputChange}
                     disabled={props.disabled}
-                    helperText={props.isValid ? <div/> : errorEnum[props.type]}
-                    //error={props.error}
+                    helperText={props.isValid ? <span/> : errorEnum[props.type]}
                     InputProps={{
                         startAdornment: <InputAdornment position="start">{adornmentEnum[props.type]}</InputAdornment>,
                     }}
@@ -45,4 +45,13 @@ export default function TextFieldComponent(props) {
             </div>
         </React.Fragment>
     );
+}
+
+TextFieldComponent.propTypes = {
+    label: PropTypes.string.isRequired,
+    value: PropTypes.number.isRequired,
+    disabled: PropTypes.bool,
+    isValid: PropTypes.bool,
+    getValue: PropTypes.func,
+    type: PropTypes.string.isRequired
 }

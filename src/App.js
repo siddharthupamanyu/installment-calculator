@@ -9,7 +9,9 @@ import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import TextField from './Components/ux/TextFields';
-import Slider from './Components/ux/Slider'
+import Slider from './Components/ux/Slider';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import ListSubheader from '@material-ui/core/ListSubheader';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -27,6 +29,9 @@ const useStyles = makeStyles(theme => ({
   width: {
     width: 'fit-content',
     paddingRight: '30px'
+  },
+  listPadding: {
+    paddingLeft: '40px'
   }
 }));
 
@@ -39,6 +44,7 @@ function App() {
   const [amount, setAmount] = React.useState(0);
   const [months, setMonth] = React.useState(0);
   const [isValid, setValidity] = React.useState(true);
+  const [isLoading, setLoading] = React.useState(false);
   const [state, setState] = React.useState({
     left: false,
   });
@@ -83,6 +89,7 @@ function App() {
     return false;
   }
   async function getData(principle, duration) {
+    setLoading(true);
     data = await fetch(`https://ftl-frontend-test.herokuapp.com/interest?amount=${principle}&numMonths=${duration}`);
     data.json()
       .then(data => {
@@ -92,14 +99,14 @@ function App() {
         setNumber(data.numPayments);
         i++;
         setIndex(i);
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   const toggleDrawer = (side, open) => event => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
     }
-
     setState({ [side]: open });
   };
 
@@ -130,6 +137,16 @@ function App() {
       onKeyDown={toggleDrawer(side, false)}
     >
       <List>
+        <ListSubheader component="div" id="header">
+          <ListItem>
+            <ListItemText 
+            className={classes.listPadding}
+            primary="Amount" />
+            <ListItemText primary="Duration" />
+            <Divider />
+            <Divider />
+          </ListItem>
+        </ListSubheader>
         {(Object.keys(localStorage).sort((a, b) => b - a)).map((key, index) => {
           const { amount, months } = JSON.parse(localStorage.getItem(key));
           return (<div key={index}>
@@ -218,6 +235,7 @@ function App() {
               disabled={true}
             />
           </Paper>
+          {isLoading ? <LinearProgress color="secondary" /> : ""}
         </Grid>
       </Grid>
     </React.Fragment>
