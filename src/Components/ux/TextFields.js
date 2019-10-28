@@ -15,13 +15,15 @@ const useStyles = makeStyles(theme => ({
 
 export default function TextFieldComponent(props) {
     const classes = useStyles();
-
     const handleInputChange = event => {
         props.getValue(event.target.value === '' ? '' : Number(event.target.value));
     };
 
-    const adornmentEnum = {"amount":'$', "month":'M', "interest":'ℛ', "monthly_payment":'$', "payments": " "};
+    const adornmentEnum = { "amount": '$', "month": 'M', "interest": 'ℛ', "monthly_payment": '$', "payments": " " };
     Object.freeze(adornmentEnum);
+    const errorEnum = { "amount": 'Range: 500-5000', "month": 'Range: 6-24' };
+    Object.freeze(errorEnum);
+
     return (
         <React.Fragment>
             <div className={clsx(classes.width)}>
@@ -34,6 +36,8 @@ export default function TextFieldComponent(props) {
                     value={props.value}
                     onChange={handleInputChange}
                     disabled={props.disabled}
+                    helperText={props.isValid ? <div/> : errorEnum[props.type]}
+                    //error={props.error}
                     InputProps={{
                         startAdornment: <InputAdornment position="start">{adornmentEnum[props.type]}</InputAdornment>,
                     }}

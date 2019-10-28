@@ -1,5 +1,4 @@
 import React from 'react';
-import './App.css';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
@@ -13,9 +12,6 @@ import TextField from './Components/ux/TextFields';
 import Slider from './Components/ux/Slider'
 
 const useStyles = makeStyles(theme => ({
-  // root: {
-  //   flexGrow: 1,
-  // },
   paper: {
     padding: theme.spacing(2),
     textAlign: 'center',
@@ -42,23 +38,41 @@ function App() {
   const [monthlyInstallment, setInstallment] = React.useState(0);
   const [amount, setAmount] = React.useState(0);
   const [months, setMonth] = React.useState(0);
+  const [isValid, setValidity] = React.useState(true);
   const [state, setState] = React.useState({
     left: false,
   });
   const [index, setIndex] = React.useState(localStorage.length);
+  const debounceOnChange = React.useCallback(debounce(getData, 400), []);
 
   let data;
+  let i = index;
+
+  function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+      const context = this;
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        timeout = null;
+        func.apply(context, args);
+      }, wait);
+    };
+  }
+
   const getAmount = value => {
     setAmount(value);
     if (checkValidMonthAndAmount(value, months)) {
-      getData(value, months);
+      debounceOnChange(value, months);
     }
+    checkValid('amount', value);
   }
 
   const getMonths = value => {
     setMonth(value);
+    checkValid('month', value);
     if (checkValidMonthAndAmount(amount, value)) {
-      getData(amount, value);
+      debounceOnChange(amount, value);
     }
   }
 
@@ -72,12 +86,13 @@ function App() {
     data = await fetch(`https://ftl-frontend-test.herokuapp.com/interest?amount=${principle}&numMonths=${duration}`);
     data.json()
       .then(data => {
-        localStorage.setItem(`${index}`, JSON.stringify({ amount: principle, months: duration }));
+        localStorage.setItem(`${i}`, JSON.stringify({ amount: principle, months: duration }));
         setInterest(data.interestRate);
         setInstallment(data.monthlyPayment.amount);
         setNumber(data.numPayments);
+        i++;
+        setIndex(i);
       });
-    setIndex(index + 1);
   };
 
   const toggleDrawer = (side, open) => event => {
@@ -90,9 +105,22 @@ function App() {
 
   const handleHistoryClicked = event => {
     const { amount, months } = JSON.parse(localStorage.getItem(event.currentTarget.getAttribute('value')));
+    setValidity(true);
     setAmount(amount);
     setMonth(months);
     getData(amount, months);
+  }
+
+  const checkValid = (type, value) => {
+    switch (type) {
+      case "amount":
+        value >= 500 && value <= 5000 ? setValidity(true) : setValidity(false);
+        break;
+      case "month":
+        value >= 6 && value <= 24 ? setValidity(true) : setValidity(false);
+        break;
+      default:
+    }
   }
 
   const sideList = side => (
@@ -141,6 +169,7 @@ function App() {
                 type='amount'
                 disabled={false}
                 label={"Amount"}
+                isValid={isValid}
               />
               <Slider
                 getValue={getAmount}
@@ -156,6 +185,7 @@ function App() {
                 type='month'
                 disabled={false}
                 label='Months'
+                isValid={isValid}
               />
               <Slider
                 getValue={getMonths}
