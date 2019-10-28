@@ -1,4 +1,5 @@
 import React from 'react';
+import clsx from 'clsx'
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
@@ -33,6 +34,10 @@ const useStyles = makeStyles(theme => ({
   },
   listPadding: {
     paddingLeft: '40px'
+  },
+  header: {
+    fontWeight: 'bold',
+    marginBottom: '10px'
   }
 }));
 
@@ -57,10 +62,10 @@ function App() {
   // variable declarions
   // variable which will have the response of the API call
   let data;
-  
+
   // it stores the value of the index so that the indexing can be done properly 
   // when saving data in local storage.
-  let i = index;  
+  let i = index;
 
   // Debounce function
   // It stops the event to fire the API call again and again
@@ -160,9 +165,9 @@ function App() {
       <List>
         <ListSubheader component="div" id="header">
           <ListItem>
-            <ListItemText 
-            className={classes.listPadding}
-            primary="Amount" />
+            <ListItemText
+              className={classes.listPadding}
+              primary="Amount" />
             <ListItemText primary="Duration" />
             <Divider />
             <Divider />
@@ -194,6 +199,9 @@ function App() {
         alignItems="center"
         justify="center"
         style={{ minHeight: '100vh' }}>
+        <Paper className={clsx(classes.paper, classes.header)}>
+          Installment Calculator
+        </Paper>
         <Button onClick={toggleDrawer('left', true)}>Open History</Button>
         <Drawer open={state.left} onClose={toggleDrawer('left', false)}>
           {sideList('left')}
