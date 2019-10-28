@@ -13,6 +13,7 @@ import Slider from './Components/ux/Slider';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import ListSubheader from '@material-ui/core/ListSubheader';
 
+//APP CSS
 const useStyles = makeStyles(theme => ({
   paper: {
     padding: theme.spacing(2),
@@ -38,6 +39,8 @@ const useStyles = makeStyles(theme => ({
 function App() {
 
   const classes = useStyles();
+
+  // Declaration of all the state variables to be used in the application
   const [interestRate, setInterest] = React.useState(0);
   const [numofPayments, setNumber] = React.useState(0);
   const [monthlyInstallment, setInstallment] = React.useState(0);
@@ -51,9 +54,16 @@ function App() {
   const [index, setIndex] = React.useState(localStorage.length);
   const debounceOnChange = React.useCallback(debounce(getData, 400), []);
 
+  // variable declarions
+  // variable which will have the response of the API call
   let data;
-  let i = index;
+  
+  // it stores the value of the index so that the indexing can be done properly 
+  // when saving data in local storage.
+  let i = index;  
 
+  // Debounce function
+  // It stops the event to fire the API call again and again
   function debounce(func, wait) {
     let timeout;
     return function (...args) {
@@ -66,6 +76,7 @@ function App() {
     };
   }
 
+  // Function which sets the amount
   const getAmount = value => {
     setAmount(value);
     if (checkValidMonthAndAmount(value, months)) {
@@ -74,6 +85,7 @@ function App() {
     checkValid('amount', value);
   }
 
+  // It sets the duration of installment
   const getMonths = value => {
     setMonth(value);
     checkValid('month', value);
@@ -82,12 +94,18 @@ function App() {
     }
   }
 
+  // It checks if the combination of amount and duration is within range to make API call
   const checkValidMonthAndAmount = (amount, months) => {
     if ((amount >= 500 && amount <= 5000) && (months >= 6 && months <= 24)) {
       return true;
     }
     return false;
   }
+
+  // Asynchronous function to make the api call
+  // It takes amount and duration as the query string
+  // If the call is successful it also sets the data into local storage
+  // It also starts the progress bar
   async function getData(principle, duration) {
     setLoading(true);
     data = await fetch(`https://ftl-frontend-test.herokuapp.com/interest?amount=${principle}&numMonths=${duration}`);
@@ -103,6 +121,7 @@ function App() {
       .finally(() => setLoading(false));
   };
 
+  // Toggles the side history drawer
   const toggleDrawer = (side, open) => event => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
@@ -110,6 +129,7 @@ function App() {
     setState({ [side]: open });
   };
 
+  // It handles the item clicked in the history and populates the fields with its data
   const handleHistoryClicked = event => {
     const { amount, months } = JSON.parse(localStorage.getItem(event.currentTarget.getAttribute('value')));
     setValidity(true);
@@ -118,6 +138,7 @@ function App() {
     getData(amount, months);
   }
 
+  // Checks if the entered amount and duration are valid and shows the range if not valid
   const checkValid = (type, value) => {
     switch (type) {
       case "amount":
